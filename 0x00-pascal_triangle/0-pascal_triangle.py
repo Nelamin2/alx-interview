@@ -11,7 +11,7 @@ def pascal_triangle(n):
     for i in range(1, n):
         row = [1]  # Start each row with 1
         # Compute the interior values of the row
-        for j in range(1, i):
+        for j in range len(row[i - 1] - 1):
             # Each interior value is the sum of the two values above it
             row.append(triangle[i-1][j-1] + triangle[i-1][j])
         row.append(1)  # End each row with 1
