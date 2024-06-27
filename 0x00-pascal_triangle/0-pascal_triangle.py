@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 def pascal_triangle(n):
     """ a fungtion that calculates the apscal traiangel's value for a given n
 
