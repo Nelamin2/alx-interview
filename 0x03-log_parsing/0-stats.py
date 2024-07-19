@@ -1,57 +1,50 @@
 #!/usr/bin/python3
 """
-Log parsing script
+log parsing
 """
+
 import sys
-import signal
+import re
 
-# Initialize metrics
-total_file_size = 0
-status_code_counts = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0, 404: 0, 405: 0, 500: 0}
-line_count = 0
 
-def print_metrics():
+def output(log: dict) -> None:
     """
-    Prints the accumulated metrics
+    helper function to display stats
     """
-    print(f"File size: {total_file_size}")
-    for code in sorted(status_code_counts.keys()):
-        if status_code_counts[code] > 0:
-            print(f"{code}: {status_code_counts[code]}")
+    print("File size: {}".format(log["file_size"]))
+    for code in sorted(log["code_frequency"]):
+        if log["code_frequency"][code]:
+            print("{}: {}".format(code, log["code_frequency"][code]))
 
-def signal_handler(sig, frame):
-    """
-    Signal handler for keyboard interruption (CTRL + C)
-    """
-    print_metrics()
-    sys.exit(0)
 
-# Set up the signal handler for CTRL + C
-signal.signal(signal.SIGINT, signal_handler)
+if __name__ == "__main__":
+    regex = re.compile(
+    r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3} - \[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+\] "GET /projects/260 HTTP/1.1" (.{3}) (\d+)')  # nopep8
 
-try:
-    for line in sys.stdin:
-        parts = line.split()
-        if len(parts) != 9:
-            continue
+    line_count = 0
+    log = {}
+    log["file_size"] = 0
+    log["code_frequency"] = {
+        str(code): 0 for code in [
+            200, 301, 400, 401, 403, 404, 405, 500]}
 
-        try:
-            file_size = int(parts[-1])
-            status_code = int(parts[-2])
-            if status_code in status_code_counts:
-                status_code_counts[status_code] += 1
-            total_file_size += file_size
-        except ValueError:
-            continue
+    try:
+        for line in sys.stdin:
+            line = line.strip()
+            match = regex.fullmatch(line)
+            if (match):
+                line_count += 1
+                code = match.group(1)
+                file_size = int(match.group(2))
 
-        line_count += 1
+                # File size
+                log["file_size"] += file_size
 
-        if line_count % 10 == 0:
-            print_metrics()
+                # status code
+                if (code.isdecimal()):
+                    log["code_frequency"][code] += 1
 
-except Exception as e:
-    pass
-
-# Print metrics one last time after all lines are processed
-print_metrics()
-
+                if (line_count % 10 == 0):
+                    output(log)
+    finally:
+        output(log)
