@@ -63,6 +63,3 @@ def main():
 
     solve_nqueens(N)
 
-if __name__ == "__main__":
-    main()
-
