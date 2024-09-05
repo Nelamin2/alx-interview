@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Module for Prime Game""
+"""Module for Prime Game"""
 
 def isWinner(x, nums):
     max_n = max(nums)
@@ -39,4 +39,3 @@ def isWinner(x, nums):
         return "Ben"
     else:
         return None
-"
